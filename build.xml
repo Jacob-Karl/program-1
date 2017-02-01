@@ -1,0 +1,7 @@
+<project>
+	
+	<target name = "ant">
+		<javac *.java/>
+	</target>
+
+</project>
