@@ -20,18 +20,12 @@
 *
 **/
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.lang.Runnable;
+import java.io.*;
 import java.util.Date;
+import java.text.DateFormat;
 import java.util.TimeZone;
 
 public class WebWorker implements Runnable
@@ -85,8 +79,8 @@ private String readHTTPRequest(InputStream is)
          while (!r.ready()) Thread.sleep(1);
          line = r.readLine();
          System.err.println("Request line: ("+line+")");
+         System.err.println(line.substring(0, 3));
          
-         //determines the GET line and calls new functions
          if(line.substring(0, 3).equals("GET")){
         	 String fileLocate = chopAtWhitespace(line);
         	 System.err.println(fileLocate);
@@ -131,80 +125,42 @@ private void writeHTTPHeader(OutputStream os, String contentType) throws Excepti
 * be done after the HTTP header has been written out.
 * @param os is the OutputStream object to write to
 **/
-// edited to display the contents of a string formated as an html doc
 private void writeContent(OutputStream os, String html) throws Exception
 {
-	
+	String test = "<html><head></head><body>\n<h3>My web server works!</h3>\n</body></html>\n";
+   //os.write("<html><head></head><body>\n".getBytes());
+   //os.write("<h3>My web server works!</h3>\n".getBytes());
+   //os.write("</body></html>\n".getBytes());
 	os.write(html.getBytes());
 }
 
-//chops GET into the readable file location
 private String chopAtWhitespace(String s){
+	System.err.println("Reached chop");
 	String newS = "";
 	boolean chopping = false;
 	for(int i=0; i<s.length(); i++){
-		if( s.charAt(i) == ' '){
-			chopping = !chopping;
-		}
 		if(chopping == true){
 			newS = newS + s.charAt(i);
 		}
-		
+		if( s.charAt(i) == ' '){
+			chopping = !chopping;
+		}
 	}
-	newS = newS.substring(2);
 	return newS;
 }
 
-//generates the text to send to the readHTTP function
-private String fileGrabber(String file) throws IOException{
-	String finalHTML = null;
-	Path filePath = null;
-	try{
-		filePath = Paths.get(file);
-		finalHTML = readFile(file) ;
-	}
-	catch(Exception NoSuchFileException){
-		finalHTML ="<html><head></head><body>\n<h2>404 error: The page you were looking for cannont be found.</h2>\n <h3> Sorry <h3/>\n</body></html>\n";
-		//finalHTML = "<html><head></head><body>\n<h3>My web server works!</h3>\n</body></html>\n";
-	}
-	System.err.println(filePath);
-	
-	finalHTML = splicer(finalHTML);
-	
-	System.err.println(finalHTML);
-	
+private String fileGrabber(String file){
+	String finalHTML = "<html><head></head><body>\n<h3>My web server works!</h3>\n</body></html>\n";
+	//try{
+	//	Path filePath = Paths.get(file);
+	//}
+	//catch(){
+	//	finalHTML ="<html><head></head><body>\n<h3>404 error: The page you were looking for cannont be found.</h3>\n <h2> Sorry <h2/>/n</body></html>\n";
+	//}
+	finalHTML ="<html><head></head><body>\n<h3>404 error: The page you were looking for cannont be found.</h3>\n <h2> Sorry <h2/></body></html>";
+
 	return finalHTML;
 	
-}
-
-// grabs the .html file and returns it's contents as a string
-private String readFile(String filePath)throws IOException{
-	byte[] fileBytes = Files.readAllBytes(Paths.get(filePath));
-	String fileWords = new String(fileBytes);
-	return fileWords;
-}
-
-private String splicer(String fileText){
-	System.err.println(fileText);
-	String newText = fileText;
-	DateFormat dateFormat = new SimpleDateFormat("MM/dd/YY");
-	Date date = new Date();
-	
-	for(int i=0; i<fileText.length()-11; i++){
-		if(fileText.substring(i, i+11).equals("<cs371date>")){
-			newText = newText.substring(0, i)+ "<h3>" +dateFormat.format(date) + "</h3>";
-		}
-		
-	}
-	
-	for(int i=0; i<fileText.length()-13; i++){
-		if(fileText.substring(i, i+13).equals("<cs371server>")){
-			newText = newText.substring(0, i)+ "<h3>I am very tired. On my desk I have a Coke Zero bottle. It is glass. It is smaller than the plastic Coke Zero bottles, but I like it more.</h3>";
-		}
-		System.err.println(fileText.substring(i, i+13));
-	}
-	
-	return newText;
 }
 
 } // end class
