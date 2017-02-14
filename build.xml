@@ -1,15 +1,25 @@
-<target name ="clean">
-	<delete dir="${build}"/>
-</taregt>
+<project>
 
-<target name = "init" depends="clean">
-	<mkdir dir "${build}/classes"/>
-</target>
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
 
-<target name="compile" depends="init"/>
-	<javac includeruntime ="false" srcdir = "$src" destdir = "${build}/classes/>
-</target>
+    <target name="compile">
+        <mkdir dir="build/classes"/>
+        <javac srcdir="src" destdir="build/classes"/>
+    </target>
 
-<target name = "run" depends="compile"/>
-	<java classname = 
-</target>
+    <target name="jar">
+        <mkdir dir="build/jar"/>
+        <jar destfile="build/jar/WebWorker.java" basedir="build/classes">
+            <manifest>
+                <attribute name="Main-Class" value="oata.WebWorker"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="run">
+        <java jar="build/jar/WebWorker.java" fork="true"/>
+    </target>
+
+</project>
